@@ -24,7 +24,7 @@ class KMeans:
         self.k = k #initialize input variables
         self.tol = tol
         self.max_iter = max_iter
-
+        #make sure that the input number of clusters is valid (positive nonzero integer)
         if k <= 0:
             raise ValueError("Number of clusters cannot be negative or 0")
         if type(k) is not int:
@@ -63,11 +63,13 @@ class KMeans:
 
         while (curr_iter < max_iter):
 
+            #compute all the MSE distances and get the index of the closest point for each centroid
+
             all_distances = cdist(matrix, self.centroid)
 
-            self.mse = np.avg(all_distances**2)
+            self.mse = np.mean(all_distances**2)
 
-            closest_points = np.argmin(all_distances, axis=1)
+            closest_points = np.argmin(all_distances, axis=1) 
 
             #group together points that are in the same cluster and calculate their centroid
 
@@ -80,24 +82,24 @@ class KMeans:
             new_centers = np.zeros((k, matrix.shape[1]))
 
             for i in range(k):
-                if len(matrix[index_groups[i]]) == 0: #we keep the same centroid if it is empty
+                if len(matrix[index_groups[i]]) == 0: #we keep the same centroid if it is empty (no cells)
                     new_centers[i] = self.centroid[i]
 
                 else:
-                    mini_mat = matrix[index_groups[i]]
+                    mini_mat = matrix[index_groups[i]] #otherwise we calculate the new possible center
                     my_center = np.mean(mini_mat, axis=0)
                     center_change = np.linalg.norm(self.centroid[i], my_center)
 
-                    if center_change <  tol:
+                    if center_change <  tol: #we keep our same centroid if within the tolerance
                         new_centers[i] = self.centroid[i]
 
                     else:
-                        new_centers[i] = my_center
+                        new_centers[i] = my_center #otherwise we assign our new calculated possible center
 
-            if np.allclose(self.centroid, new_centers, tol): #this means that all were not updated, all passed the tolerance threshold
+            if np.allclose(self.centroid, new_centers, tol): #this means that all centroids were not updated, all passed the tolerance threshold
                 break
             else:
-                self.centroid = new_centers
+                self.centroid = new_centers #otherwise we update the centroid(s)
 
             curr_iter += 1
 
@@ -119,6 +121,7 @@ class KMeans:
             np.ndarray
                 a 1D array with the cluster label for each of the observations in `mat`
         """
+        #check if the number of features matches, and return the array of indices that correspond to the closest centroid index for each point
 
         matrix = mat
         if len(matrix.shape[1]) != len(self.centroid[0]):
@@ -139,6 +142,7 @@ class KMeans:
             float
                 the squared-mean error of the fit model
         """
+        #we compute and retain MSE as part of the fit, here we return it
         return self.mse
 
 
@@ -151,5 +155,5 @@ class KMeans:
             np.ndarray
                 a `k x m` 2D matrix representing the cluster centroids of the fit model
         """
-
+        #we compute and retain centroid as part of the fit, here we return it
         return self.centroid
