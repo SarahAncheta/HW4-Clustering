@@ -63,7 +63,25 @@ def test_centroids_kmeans():
     assert center.shape[1] == clusters.shape[1]
 
 
+def test_fit_against_true_labels(): #make sure that the three predicted sets of indicies completely overlap with their true values
+    k = 3
+    kmeans = KMeans(k)
+    clusters, true_labels = make_clusters(scale=0.3)
+    kmeans.fit(clusters)
 
+    predictions = kmeans.predict(clusters)
+
+    #got this nice dictionary line from ChatGPT
+    index_groups_true = {val: np.where(true_labels == val)[0].tolist() for val in np.unique(true_labels)}
+
+    index_groups_predict = {val: np.where(predictions == val)[0].tolist() for val in np.unique(predictions)}
+
+    #got this frozenset from ChatGPT
+    sets1 = {frozenset(v) for v in index_groups_true.values()}
+    sets2 = {frozenset(v) for v in index_groups_predict.values()}
+
+    assert sets1 == sets2
+    
 
     
 
