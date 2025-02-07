@@ -55,9 +55,18 @@ class KMeans:
         tol = self.tol
         max_iter = self.max_iter
 
-        #we initialize k random centroid points based on the range of our data (starter_centroid)
+        #we initialize k random centroid points based on the range of our data (starter_centroid), with k++
 
-        self.centroid = np.random.uniform(np.min(matrix, axis=0), np.max(matrix, axis=0), size=(k, matrix.shape[1]))
+        self.centroid = np.zeros((k, matrix.shape[1]))
+
+        initial_curr_centroid = np.random.uniform(np.min(matrix, axis=0), np.max(matrix, axis=0), size=(1, matrix.shape[1]))
+        self.centroid[0] = initial_curr_centroid
+ 
+        for i in range(1, k):
+            total_dist = cdist(matrix, initial_curr_centroid)
+            distribution_vals = (np.min(total_dist, axis=1))**2
+            distribution = distribution_vals / np.sum(distribution_vals)
+            self.centroid[i] = matrix[np.random.choice(matrix.shape[0], p=distribution)]
 
         curr_iter = 0
 
@@ -80,26 +89,24 @@ class KMeans:
             self.index_groups = index_groups
 
             new_centers = np.zeros((k, matrix.shape[1]))
+            changes = []
 
-            for i in range(k):
+            for i in range(k): #iterate through each cluster
                 if len(matrix[index_groups[i]]) == 0: #we keep the same centroid if it is empty (no cells)
                     new_centers[i] = self.centroid[i]
 
                 else:
-                    mini_mat = matrix[index_groups[i]] #otherwise we calculate the new possible center
+                    mini_mat = matrix[index_groups[i]] #otherwise we calculate the new possible center for the cluster and the change in the center
                     my_center = np.mean(mini_mat, axis=0)
-                    center_change = np.linalg.norm(self.centroid[i], my_center)
+                    center_change = np.linalg.norm(self.centroid[i] - my_center)
 
-                    if center_change <  tol: #we keep our same centroid if within the tolerance
-                        new_centers[i] = self.centroid[i]
-
-                    else:
-                        new_centers[i] = my_center #otherwise we assign our new calculated possible center
-
-            if np.allclose(self.centroid, new_centers, tol): #this means that all centroids were not updated, all passed the tolerance threshold
+                    new_centers[i] = my_center
+                    changes.append(center_change)
+         
+            if np.max(changes) < tol: #if the max change in the cluster is less than the tolerance, we stop
                 break
-            else:
-                self.centroid = new_centers #otherwise we update the centroid(s)
+       
+            self.centroid = new_centers #otherwise we update the centers
 
             curr_iter += 1
 
@@ -124,7 +131,7 @@ class KMeans:
         #check if the number of features matches, and return the array of indices that correspond to the closest centroid index for each point
 
         matrix = mat
-        if len(matrix.shape[1]) != len(self.centroid[0]):
+        if matrix.shape[1] != len(self.centroid[0]):
             raise ValueError("The dimensions of the input matrix and centroid are not the same")
         
         all_distances = cdist(matrix, self.centroid)
