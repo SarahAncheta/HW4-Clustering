@@ -20,7 +20,8 @@ dynamic = ["version", "description"]
 dependencies = [
     "pytest>=3.0",
     "numpy>=2.0.0",
-    "scikit-learn>=1.6.1"
+    "scikit-learn>=1.6.1",
+    "scipy>=1.15.1",
 ]
 
 [project.urls]
