@@ -60,14 +60,14 @@ class Silhouette:
             #iterate through each cluster
             for k, v in sub_indices_per_cluster.items():
                 if k != mycluster:
-                    intra_options.append(np.mean(np.linalg.norm(X[v] - mycell, axis=1)))
+                    intra_options.append(np.mean(np.linalg.norm(mycell - X[v], axis=1)))
                 else:
                     continue
             #get the cluster with the minimum coherence
             intra_coh = np.min(intra_options)
 
             #calculate final score
-            cell_score = (inter_coh - intra_coh)/np.max(inter_coh, intra_coh)
+            cell_score = (intra_coh - inter_coh)/np.max([inter_coh, intra_coh])
             scores[cell] = cell_score
 
         return scores

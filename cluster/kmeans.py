@@ -50,10 +50,14 @@ class KMeans:
         """
 
         matrix = mat
+        self.matrix = mat
 
         k = self.k
         tol = self.tol
         max_iter = self.max_iter
+
+        if matrix.shape[0] < k:
+            raise ValueError("Our desired k is greater than the number of points")
 
         #we initialize k random centroid points based on the range of our data (starter_centroid), with k++
 
@@ -76,9 +80,8 @@ class KMeans:
 
             all_distances = cdist(matrix, self.centroid)
 
-            self.mse = np.mean(all_distances**2)
-
             closest_points = np.argmin(all_distances, axis=1) 
+
 
             #group together points that are in the same cluster and calculate their centroid
 
@@ -150,7 +153,9 @@ class KMeans:
                 the squared-mean error of the fit model
         """
         #we compute and retain MSE as part of the fit, here we return it
-        return self.mse
+        mse = np.mean(np.min(cdist(self.matrix, self.centroid), axis=1)**2)
+ 
+        return mse
 
 
 
