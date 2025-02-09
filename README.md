@@ -1,6 +1,8 @@
 # Assignment 4
 Implementation of KMeans and Silhouette Scoring
 
+[![Python application](https://github.com/SarahAncheta/HW4-Clustering/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/SarahAncheta/HW4-Clustering/actions/workflows/python-app.yml)
+
 # Assignment
 
 ## Overview
